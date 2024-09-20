@@ -1,10 +1,12 @@
 package org.example.LearningAuthentication.service;
 
 
+import org.example.LearningAuthentication.Configuration.JwtUtil;
 import org.example.LearningAuthentication.Exception.UserCreateException;
 import org.example.LearningAuthentication.model.User;
 import org.example.LearningAuthentication.repository.UserRepository;
 import org.example.LearningAuthentication.request.UserCreateRequest;
+import org.example.LearningAuthentication.request.UserLoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private org.example.LearningAuthentication.Configuration.JwtUtil jwtUtil;
+
 
     public void createUser(UserCreateRequest userCreateRequest) throws Exception{
 
@@ -29,5 +34,20 @@ public class UserService {
         userCreateRequest.setPassword(pass);
         User newUser = userCreateRequest.toUser();
         userRepository.save(newUser);
+    }
+
+    public String loginUser(UserLoginRequest userLoginRequest) throws Exception{
+        User checkUser = userRepository.findByEmailAddress(userLoginRequest.getEmailAddress());
+        if(checkUser==null){
+            throw new Exception("Check Email Address or password");
+        }
+        if(!bCryptPasswordEncoder.matches(userLoginRequest.getPassword(), checkUser.getPassword())){
+            throw new Exception("Check Email Address or password");
+        }
+
+        org.example.LearningAuthentication.Configuration.JwtUtil jwtUtil = new JwtUtil();
+        String token = jwtUtil.generateToken(checkUser.getEmailAddress());
+
+        return token;
     }
 }

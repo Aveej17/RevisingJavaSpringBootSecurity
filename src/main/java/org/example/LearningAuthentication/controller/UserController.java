@@ -1,6 +1,7 @@
 package org.example.LearningAuthentication.controller;
 
 import org.example.LearningAuthentication.request.UserCreateRequest;
+import org.example.LearningAuthentication.request.UserLoginRequest;
 import org.example.LearningAuthentication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.validation.Valid;
@@ -26,8 +27,8 @@ public class UserController {
         return entity;
     }
 
-    @GetMapping("/login")
-    public void getUser(){
-        System.out.println("you are reaching get user controller");
+    @PostMapping("/login")
+    public String loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) throws Exception{
+        return userService.loginUser(userLoginRequest);
     }
 }
